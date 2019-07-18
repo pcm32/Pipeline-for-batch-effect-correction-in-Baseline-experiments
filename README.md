@@ -1,6 +1,6 @@
 # Batch effect correction in Baseline experiments from Expression Atlas
 
-The pipeline to correct batch effect between Baseline experiments is the following :
+The pipeline to correct batch effect between Baseline experiments is described in details below. The functions are written in the file `pipeline.R`.
 
 ## Loading data in R
 - Put the data files in `.Rdata` format in a directory containing only them. (The R objects contained in those files must be of class `SimpleList` with a `$rnaseq` slot which is a `SummarizedExperiment` object containing the data.)
