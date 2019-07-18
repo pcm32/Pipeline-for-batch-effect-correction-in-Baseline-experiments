@@ -1,5 +1,4 @@
 # Batch effect correction in Baseline experiments from Expression Atlas
-## Guillaume HEGER, Trainee in Gene Expression Team
 
 The pipeline to correct batch effect between Baseline experiments is the following :
 
