@@ -17,7 +17,7 @@ To correct batch effect, one needs to take the biological characteristics of the
 experiments %<>% remove_isolated_experiments('organism_part')
 ```
 
-! WARNING : this function only removes the isolated experiments. Although it is still possible that two or more unconnected groups of experiments remain, within which the experiments are connected. In this case, batch effect correction is not possible neither and one has to choose a group of experiment manually.
+WARNING : this function only removes the isolated experiments. Although it is still possible that two or more unconnected groups of experiments remain, within which the experiments are connected. In this case, batch effect correction is not possible neither and one has to choose a group of experiments manually.
 
 ## Merging experiments in a single dataset
 The function `merge_experiments` merges all the experiments in the list in a single `SummarizedExperiment` object and doesn't perform any correction. This function has two additional arguments `log` and `filter` (set to `TRUE` by default).
@@ -27,7 +27,7 @@ The function `merge_experiments` merges all the experiments in the list in a sin
 ```r
 experiments %<>% merge_experiments
 #OR
-experiments %<>%merge_experiments(log=TRUE,filter=FALSE)
+experiments %<>% merge_experiments(log=TRUE,filter=FALSE)
 #or any other settings
 ```
 
