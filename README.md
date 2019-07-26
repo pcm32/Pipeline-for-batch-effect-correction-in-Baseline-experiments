@@ -30,7 +30,7 @@ If you want to use data from Expression Atlas that can be downloaded in `.Rdata`
 experiments <- download_experiments_from_ExpressionAtlas('E-ERAD-169','E-GEOD-73175','E-MTAB-2801')
 ```
 
-![The experiments IDs can be found on the bottom left corner of your screen when you browse Expression Atlas experiments and point an experiment.](Expression Atlas screenshot.png)
+![The experiments IDs can be found on the bottom left corner of your screen when you browse Expression Atlas experiments and point an experiment.](https://github.com/gheager/Pipeline-for-batch-effect-correction-in-Baseline-experiments/blob/master/Expression%20Atlas%20screenshot.png)
 
 This downloads the experiments in a new directory called "experiments" in your working directory and loads all the experiments in R within a list, using `load_experiments` function.
 
