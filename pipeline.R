@@ -5,13 +5,26 @@ library(ggplot2)
 library(igraph)
 library(gtools)
 
-library(sva)
-library(RUVSeq)
-library(batchelor)
+#batch effect correction packages
+library(sva) #for ComBat
+library(RUVSeq) #for RUVs
+library(batchelor) #for mnnCorrect
 
-list_experiments<-function(directory){
+load_experiments<-function(directory){
   directory %>% dir %>% map(~get(load(paste0(directory,'/',.x)))$rnaseq) %>% 
     set_names(directory %>% dir %>% str_split('-') %>% map(~.x[2:3] %>% paste(collapse='')) %>% unlist)
+}
+
+download_experiments_from_ExpressionAtlas<-function(..., destdir=getwd() %>% paste('experiments',sep='/')){
+  if(destdir %>% dir.exists){
+    stop('Attempted to create directory `',desdir,'`` but this address already exists. Rename it or modify `destdir` argument in `download_experiments`.')
+  }else{
+    destdir %>% dir.creates
+  }
+  for(experiment in list(...)){
+    paste0('https://www.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destdir)
+  }
+  desdir %>% load_experiments
 }
 
 remove_isolated_experiments<-function(experiments,factor){

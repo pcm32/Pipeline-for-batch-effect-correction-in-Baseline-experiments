@@ -2,13 +2,37 @@
 
 The pipeline to correct batch effect between Baseline experiments is described in details below. The functions are written in the file `pipeline.R`.
 
+## Installing the dependencies (first use)
+To run the following functions, you will need some packages that can be installed using these commands in R :
+```r
+install.packages(c('magrittr','stringr','purrr','ggplot2','igraph','gtools'))
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install('sva')
+BiocManager::install('RUVSeq')
+BiocManager::install('batchelor')
+```
+
 ## Loading data in R
+If the data files are already on your computer, you can use this step. If you want to download data from Expression Atlas, skip this part and go directly to "Downloading data from Expression Atlas".
+
 - Put the data files in `.Rdata` format in a directory containing only them. (The R objects contained in those files must be of class `SimpleList` with a `$rnaseq` slot which is a `SummarizedExperiment` object containing the data.)
-- Load all the experiments in a list using the function `list_experiments` : 
+- Load all the experiments in a list using the function `load_experiments` : 
 
 ```r
-experiments <- list_experiments('path')
+experiments <- load_experiments('directory_path')
 ```
+
+## Downloading data from Expression Atlas
+If you want to use data from Expression Atlas that can be downloaded in `.Rdata` format, you can use the function `download_experiments_from_ExpressionAtlas` in this way :
+
+```r
+experiments <- download_experiments_from_ExpressionAtlas('E-ERAD-169','E-GEOD-73175','E-MTAB-2801')
+```
+
+![The experiments IDs can be found on the bottom left corner of your screen when you browse Expression Atlas experiments and point an experiment.](Expression Atlas screenshot.png)
+
+This downloads the experiments in a new directory called "experiments" in your working directory and loads all the experiments in R within a list, using `load_experiments` function.
 
 ## Removing the isolated experiments
 To correct batch effect, one needs to take the biological characteristics of the samples into account (organism part in our example). If no sample of an experiment shares biological characteristics with samples from other batches, it is not possible to correct batch effect with these batches since one cannot distinguish the biological difference from the artifact. The function `remove_isolated_experiments` removes the isolated experiments and plots graphs of intersections between the experiments before and after removal.
