@@ -20,7 +20,7 @@ download_experiments_from_ExpressionAtlas<-function(..., destdir=getwd() %>% pas
     destdir %>% dir.create
   }
   for(experiment in list(...)){
-    paste0('https://wwwdev.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destfile = paste0(destdir,"/",experiment))
+    paste0('https://wwwdev.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destfile = paste0(destdir,"/",experiment,".Rdata"))
   }
   destdir %>% load_experiments
 }
