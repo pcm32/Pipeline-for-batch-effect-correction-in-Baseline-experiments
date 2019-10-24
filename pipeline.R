@@ -17,19 +17,19 @@ load_experiments<-function(directory){
 
 download_experiments_from_ExpressionAtlas<-function(..., destdir=getwd() %>% paste('experiments',sep='/')){
   if(destdir %>% dir.exists){
-    stop('Attempted to create directory `',desdir,'`` but this address already exists. Rename it or modify `destdir` argument in `download_experiments`.')
+    stop('Attempted to create directory `',destdir,'`` but this address already exists. Rename it or modify `destdir` argument in `download_experiments`.')
   }else{
-    destdir %>% dir.creates
+    destdir %>% dir.create
   }
   for(experiment in list(...)){
-    paste0('https://www.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destdir)
+    paste0('https://www.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destdir %>% paste0('/',experiment,'-atlasExperimentSummary.Rdata'))
   }
-  desdir %>% load_experiments
+  destdir %>% load_experiments
 }
 
-remove_isolated_experiments<-function(experiments,factor){
+remove_isolated_experiments<-function(experiments,covariate){
   batch<-experiments %>% imap(~.y %>% rep(dim(.x)[2])) %>% unlist(use.names=FALSE)
-  group<-experiments %>% map(~.[[factor]]) %>% unlist(use.names=FALSE)
+  group<-experiments %>% map(~.[[covariate]]) %>% unlist(use.names=FALSE)
   groups <- group %>% split(batch)
   intersections<-NULL
   for(i in groups){
@@ -40,29 +40,39 @@ remove_isolated_experiments<-function(experiments,factor){
   intersections%<>%matrix(length(groups))%<>%set_colnames(names(groups))%<>%set_rownames(names(groups))
   intersections %>% graph_from_adjacency_matrix %>% plot
   experiments[rownames(intersections)[rowSums(intersections!=0)<=1]]<-NULL
-  batch<-experiments %>% imap(~.y %>% rep(dim(.x)[2])) %>% unlist(use.names=FALSE)
-  group<-experiments %>% map(~.[[factor]]) %>% unlist(use.names=FALSE)
-  groups <- group %>% split(batch)
-  intersections<-NULL
-  for(i in groups){
-    for(j in groups){
-      intersections%<>%c(length(intersect(i,j)))
+  message('The following experiments have been removed since they are isolated :')
+  cat(rownames(intersections)[rowSums(intersections!=0)<=1],'\n')
+  if(length(experiments)==0){
+    warning('All the experiments are isolated. The result is an empty list.')
+  }else{
+    batch<-experiments %>% imap(~.y %>% rep(dim(.x)[2])) %>% unlist(use.names=FALSE)
+    group<-experiments %>% map(~.[[covariate]]) %>% unlist(use.names=FALSE)
+    groups <- group %>% split(batch)
+    intersections<-NULL
+    for(i in groups){
+      for(j in groups){
+        intersections%<>%c(length(intersect(i,j)))
+      }
     }
+    intersections%<>%matrix(length(groups))%<>%set_colnames(names(groups))%<>%set_rownames(names(groups))
+    intersections %>% graph_from_adjacency_matrix %>% plot
   }
-  intersections%<>%matrix(length(groups))%<>%set_colnames(names(groups))%<>%set_rownames(names(groups))
-  intersections %>% graph_from_adjacency_matrix %>% plot
   return(experiments)
 }
 
-merge_experiments<-function(experiments, log=TRUE, filter=TRUE){
+merge_experiments<-function(experiments, log=TRUE, filter=FALSE){
   genes<-experiments %>% map(rownames)
   common.genes<-genes %>% purrr::reduce(intersect)
-  filtered.genes<-genes %>% map(setdiff %>% partial(y=common.genes))
+  filtered.genes<-genes %>% map(setdiff %>% partial(y=common.genes)) %>% purrr::reduce(intersect)
+  if(length(filtered.genes)!=0){
+    warning(length(filtered.genes),' genes have been removed since they are not shared across all the experiments.')
+  }
   data<-experiments %>% map(~.x@assays$data$counts %>% extract(rownames(.x)%in%common.genes,)) %>% purrr::reduce(cbind)
   batch<-experiments %>% imap(~.y %>% rep(ncol(.x))) %>% unlist(use.names=FALSE) %>% factor
   if(filter){
-    filter <- data %>% t %>% data.frame %>% split(batch) %>% map(~colSums(.)!=0) %>% purrr::reduce(`&`)
-    data%<>%extract(filter,)
+    filter <- data %>% t %>% data.frame %>% split(batch) %>% map(~colSums(.)==0) %>% purrr::reduce(`&`)
+    data%<>%extract(!(filter),)
+    warning(sum(filter),' genes have been filtered.')
   }
   if(log) data%<>%log1p
   return(SummarizedExperiment(
