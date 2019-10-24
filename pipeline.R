@@ -16,15 +16,13 @@ load_experiments<-function(directory){
 }
 
 download_experiments_from_ExpressionAtlas<-function(..., destdir=getwd() %>% paste('experiments',sep='/')){
-  if(destdir %>% dir.exists){
-    stop('Attempted to create directory `',desdir,'`` but this address already exists. Rename it or modify `destdir` argument in `download_experiments`.')
-  }else{
-    destdir %>% dir.creates
+  if(!(destdir %>% dir.exists) ){
+    destdir %>% dir.create
   }
   for(experiment in list(...)){
-    paste0('https://www.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destdir)
+    paste0('https://wwwdev.ebi.ac.uk/gxa/experiments-content/',experiment,'/static/',experiment,'-atlasExperimentSummary.Rdata') %>% download.file(destfile = paste0(destdir,"/",experiment,".Rdata"))
   }
-  desdir %>% load_experiments
+  destdir %>% load_experiments
 }
 
 remove_isolated_experiments<-function(experiments,factor){
